@@ -2,6 +2,9 @@
 
 set -e
 
+mkdir -p ~/bitcoin-core-build/
+cd ~/bitcoin-core-build/
+
 BASE_URL="https://bitcoincore.org/bin/"
 
 # Fetch the directory index and extract version numbers
@@ -40,13 +43,18 @@ else
     exit 1
 fi
 
-mkdir -p ~/build/
-tar -xzf "bitcoin-$major_minor.tar.gz" -C ~/build/
+tar -xzf "bitcoin-$major_minor.tar.gz"
 rm "bitcoin-$major_minor.tar.gz"
 
-cd ~/build/bitcoin-$major_minor/
+cd ~/bitcoin-core-build/bitcoin-$major_minor/
 
 ./autogen.sh
 ./configure --without-gui --with-miniupnpc --with-natpmp
-make
+make -j 24
 make install
+
+mv ~/bitcoin-core-build/bitcoin-$major_minor/src/bitcoind /usr/sbin/bitcoind
+mv ~/bitcoin-core-build/bitcoin-$major_minor/src/bitcoin-cli /usr/sbin/bitcoin-cli
+
+cd ~
+rm -rf ~/bitcoin-core-build/
